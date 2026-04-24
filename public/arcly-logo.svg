@@ -1,0 +1,10 @@
+<svg width="200" height="56" viewBox="0 0 200 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  
+  <g transform="translate(4 4)">
+    <path d="M 36.728 36.728 A 18 18 0 1 1 33.000 8.412" stroke="#f4f3f1" stroke-width="2.7840000000000003" stroke-linecap="round" opacity="0.88"></path>
+    <path d="M 18.218 32.257 A 10.08 10.08 0 0 0 23.121 13.958" stroke="#3b82f6" stroke-width="2.7840000000000003" stroke-linecap="round"></path>
+    <circle cx="24" cy="24" r="3.2640000000000002" fill="#3b82f6"></circle>
+    <circle cx="33.000" cy="8.412" r="2.350" fill="#f4f3f1" opacity="0.6"></circle>
+  </g>
+  <text x="62" y="40" font-family="&#39;DM Sans&#39;, &#39;Helvetica Neue&#39;, sans-serif" font-weight="500" font-size="28" letter-spacing="-0.7" fill="#f4f3f1">arc<tspan fill="#3b82f6" font-weight="600">ly</tspan></text>
+</svg>
