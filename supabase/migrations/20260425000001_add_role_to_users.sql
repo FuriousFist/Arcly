@@ -1,0 +1,2 @@
+alter table public.users                                                                                                                                                                                                                                                   
+    add column role text check (role in ('instructor', 'student'));

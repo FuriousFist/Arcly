@@ -14,7 +14,7 @@ export async function completeOnboarding(displayName: string, role: string) {
 
     const { error: updateError } = await supabase
         .from('users')
-        .update({ display_name: displayName.trim(), role: role, onboarding_complete: true })
+        .update({ name: displayName.trim(), role: role, onboarding_complete: true })
         .eq('id', user.id)
 
     if (updateError) return { error: updateError.message }
