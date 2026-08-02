@@ -10,10 +10,10 @@ export async function GET(req: Request) {
 
     const { data: classes  } = await supabase
         .from( 'class_members' )
-        .select( 'classes(*)' )
+        .select( 'role, classes(*)' )
         .eq('user_id', user.id)
         
-    return NextResponse.json({ data : classes })
+    return NextResponse.json({ data: classes }, { status: 200 })
 }
 
 export async function POST(req: Request) {
@@ -33,30 +33,28 @@ export async function POST(req: Request) {
     if (!name) return err('Missing name', 'MISSING_NAME', 400)
     
     const inviteCode = await generateUniqueInviteCode(supabase)
+    const classId = crypto.randomUUID()
 
-    const { data: classData, error: classError } = await supabase
+    const { error: classError } = await supabase
         .from('classes')
         .insert([{
+            id: classId,
             name,
             invite_code: inviteCode,
             instructor_id: user.id
         }])
-        .select('id')
-        .single()
 
     if (classError) return err('Cannot create class', 'CANNOT_CREATE_CLASS', 500)
-    
+
     const { error: memberError } = await supabase
         .from('class_members')
         .insert([{
-            class_id: classData.id,
+            class_id: classId,
             user_id: user.id,
             role: 'instructor'
         }])
-        .select()
-        .single()
 
     if (memberError) return err('Cannot assign class', 'CANNOT_ASSIGN_CLASS', 500)
 
-    return NextResponse.json({ class: { id: classData.id, name, invite_code: inviteCode } }, { status: 201 })
+    return NextResponse.json({ class: { id: classId, name, invite_code: inviteCode } }, { status: 201 })
 }
