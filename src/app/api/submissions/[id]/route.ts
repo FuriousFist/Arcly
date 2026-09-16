@@ -19,7 +19,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
     // Bug: isInstructor is always undefined here — fixed in item 4 (requires joining assignments)
     const isInstructor = submissionData.assignments?.classes?.class_members?.some(
-        (m: { user_id: string; role: string }) => m.user_id === user.id && m.role === 'instructor'
+        (m: { user_id: string; role: string }) => m.user_id === user.id && m.role === 'instructor',
     )
 
     if (!isOwner && !isInstructor) return err('Forbidden', 'FORBIDDEN', 403)

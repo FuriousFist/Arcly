@@ -1,13 +1,12 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { completeOnboarding } from "@/app/actions/onboarding"
-import Button from "@/components/ui/Button"
-import Input from "@/components/ui/Input"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { completeOnboarding } from '@/app/actions/onboarding'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
 
 export default function OnboardingForm() {
-
     const [displayName, setDisplayName] = useState('')
     const [role, setRole] = useState('')
     const [error, setError] = useState('')

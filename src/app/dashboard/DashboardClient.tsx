@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import Button from "@/components/ui/Button"
-import Card from "@/components/ui/Card"
-import Input from "@/components/ui/Input"
-import FullScreenMessage from "@/components/ui/FullScreenMessage"
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import Input from '@/components/ui/Input'
+import FullScreenMessage from '@/components/ui/FullScreenMessage'
 
 type ClassSummary = {
     id: string
@@ -30,7 +30,6 @@ type UpcomingDueDate = {
 }
 
 export default function DashboardClient() {
-
     const [error, setError] = useState('')
     const [classes, setClasses] = useState<ClassSummary[]>([])
     const [recentSubmissions, setRecentSubmissions] = useState<RecentSubmission[]>([])
@@ -47,7 +46,7 @@ export default function DashboardClient() {
             try {
                 const [classesRes, dashboardRes] = await Promise.all([
                     fetch('/api/classes'),
-                    fetch('/api/dashboard')
+                    fetch('/api/dashboard'),
                 ])
 
                 if (!classesRes.ok) {
@@ -77,7 +76,6 @@ export default function DashboardClient() {
                 setClasses(merged)
                 setRecentSubmissions(dashboardData.recentSubmissions)
                 setUpcomingDueDates(dashboardData.upcomingDueDates)
-
             } catch (err) {
                 setError('An unexpected error occurred')
             } finally {
@@ -103,7 +101,7 @@ export default function DashboardClient() {
             const res = await fetch('/api/classes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: newClassName.trim() })
+                body: JSON.stringify({ name: newClassName.trim() }),
             })
             if (!res.ok) {
                 setCreateError('Failed to create class')
@@ -159,11 +157,19 @@ export default function DashboardClient() {
     )
 
     if (loading) {
-        return <FullScreenMessage><p>Loading...</p></FullScreenMessage>
+        return (
+            <FullScreenMessage>
+                <p>Loading...</p>
+            </FullScreenMessage>
+        )
     }
 
     if (error) {
-        return <FullScreenMessage><p>{error}</p></FullScreenMessage>
+        return (
+            <FullScreenMessage>
+                <p>{error}</p>
+            </FullScreenMessage>
+        )
     }
 
     if (classes.length === 0) {

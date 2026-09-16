@@ -8,7 +8,8 @@ export async function POST(req: Request) {
 
     const { assignment_id, text_content, file_urls } = await req.json()
 
-    if (!assignment_id || (!text_content && !file_urls)) return err('Missing parameters', 'MISSING_PARAMETERS', 400)
+    if (!assignment_id || (!text_content && !file_urls))
+        return err('Missing parameters', 'MISSING_PARAMETERS', 400)
 
     const { data: assignment, error: assignmentError } = await supabase
         .from('assignments')

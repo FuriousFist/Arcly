@@ -14,7 +14,9 @@ export async function requireUser(): Promise<
     | { supabase?: never; user?: never; response: NextResponse }
 > {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+        data: { user },
+    } = await supabase.auth.getUser()
     if (!user) return { response: err('Unauthorised', 'unauthorised', 401) }
     return { supabase, user }
 }

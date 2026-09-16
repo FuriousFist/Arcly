@@ -31,10 +31,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     const access = await requireClassRole(supabase, id, user.id, 'instructor')
     if (access.response) return access.response
 
-    const { error: deleteError } = await supabase
-        .from('classes')
-        .delete()
-        .eq('id', id)
+    const { error: deleteError } = await supabase.from('classes').delete().eq('id', id)
 
     if (deleteError) return err('Cannot delete class', 'CANNOT_DELETE_CLASS', 500)
     return NextResponse.json({ success: true })

@@ -1,12 +1,12 @@
 // vault: vault/tickets/v1/v1-2.2-class-management-ui.md
 
-"use client"
+'use client'
 
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import Button from "@/components/ui/Button"
-import Card from "@/components/ui/Card"
-import FullScreenMessage from "@/components/ui/FullScreenMessage"
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import FullScreenMessage from '@/components/ui/FullScreenMessage'
 
 type Tab = 'assignments' | 'members' | 'ai'
 
@@ -47,7 +47,6 @@ const STATUS_COLORS: Record<Assignment['status'], string> = {
 }
 
 export default function ClassClient({ classId }: { classId: string }) {
-
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const [classData, setClassData] = useState<ClassData | null>(null)
@@ -106,8 +105,11 @@ export default function ClassClient({ classId }: { classId: string }) {
             }
             setClassData((prev) =>
                 prev
-                    ? { ...prev, class_members: prev.class_members.filter((m) => m.user_id !== member.user_id) }
-                    : prev
+                    ? {
+                          ...prev,
+                          class_members: prev.class_members.filter((m) => m.user_id !== member.user_id),
+                      }
+                    : prev,
             )
         } catch (err) {
             setRemoveError('An unexpected error occurred')
@@ -117,7 +119,11 @@ export default function ClassClient({ classId }: { classId: string }) {
     }
 
     if (loading) {
-        return <FullScreenMessage><p>Loading...</p></FullScreenMessage>
+        return (
+            <FullScreenMessage>
+                <p>Loading...</p>
+            </FullScreenMessage>
+        )
     }
 
     if (error || !classData) {

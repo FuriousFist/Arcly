@@ -20,11 +20,7 @@ export async function POST(req: Request) {
     if (auth.response) return auth.response
     const { supabase, user } = auth
 
-    const { data: userData } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+    const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single()
 
     if (userData?.role !== 'instructor') return err('Forbidden', 'FORBIDDEN', 403)
 
