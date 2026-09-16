@@ -2,6 +2,12 @@
 
 @theme inline {
   --font-sans: var(--font-dm-sans);
+  --color-bg: #0c0c10;
+  --color-surface: #1a1a24;
+  --color-border: #2a2a3a;
+  --color-fg: #f4f3f1;
+  --color-accent: #3b82f6;
+  --color-danger: #f87171;
 }
 
 body {

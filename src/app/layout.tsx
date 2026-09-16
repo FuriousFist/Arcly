@@ -19,7 +19,7 @@ import type { Metadata } from "next"
   }>) {                                                                                                                                                                                                                                                                      
     return (      
       <html lang="en" className={`${dmSans.variable} h-full`}>
-        <body className="min-h-full flex flex-col font-sans">{children}</body>                                                                                                                                                                                               
+        <body className="min-h-full flex flex-col font-sans bg-bg text-fg">{children}</body>                                                                                                                                                                                               
       </html>
     )                                                                                                                                                                                                                                                                        
   }               

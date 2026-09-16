@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { completeOnboarding } from "@/app/actions/onboarding"
+import Button from "@/components/ui/Button"
+import Input from "@/components/ui/Input"
 
 export default function OnboardingForm() {
 
@@ -17,7 +19,7 @@ export default function OnboardingForm() {
         if (result.error) {
             setError(result.error)
             return
-        } 
+        }
 
         if (result.role === 'instructor') {
             router.push('/dashboard')
@@ -27,59 +29,37 @@ export default function OnboardingForm() {
     }
 
     return (
-        <div
-            className="flex min-h-screen flex-col items-center justify-center gap-10"
-            style={{ backgroundColor: '#0c0c10' }}        
-        >
+        <div className="flex min-h-screen flex-col items-center justify-center gap-10 bg-bg">
             <div className="flex flex-col gap-2">
-                <label style={{ color: '#f4f3f1' }}>Display Name</label>
-                <input
+                <label className="text-fg">Display Name</label>
+                <Input
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="rounded-lg px-4 py-2 text-sm w-full"
                     placeholder="Enter your name"
-                    style={{ backgroundColor: '#1a1a24', color: '#f4f3f1', border: '1px solid #2a2a3a' }}
                 />
             </div>
 
             <div className="flex gap-4">
-                <button
+                <Button
                     onClick={() => setRole('instructor')}
-                    style={{
-                        backgroundColor: role === 'instructor' ? '#3b82f6' : '#1a1a24',
-                        color: '#f4f3f1',
-                        border: '1px solid #2a2a3a'
-                    }}
-                    className="px-6 py-2 rounded-lg text-sm font-medium"
+                    variant={role === 'instructor' ? 'primary' : 'secondary'}
                 >
                     Instructor
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={() => setRole('student')}
-                    style={{
-                        backgroundColor: role === 'student' ? '#3b82f6' : '#1a1a24',
-                        color: '#f4f3f1',
-                        border: '1px solid #2a2a3a'
-                    }}
-                    className="px-6 py-2 rounded-lg text-sm font-medium"
+                    variant={role === 'student' ? 'primary' : 'secondary'}
                 >
                     Student
-                </button>
+                </Button>
             </div>
 
-            
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {error && <p className="text-danger">{error}</p>}
 
-            <button
-                onClick={handleSubmit}
-                className="px-6 py-3 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
-                style={{ backgroundColor: '#3b82f6', color: '#f4f3f1' }}                                                                                                                                                                                                           
-            >
+            <Button onClick={handleSubmit} className="px-6 py-3">
                 Continue
-            </button>
-            
-        
+            </Button>
         </div>
     )
 }
