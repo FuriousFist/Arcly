@@ -9,6 +9,7 @@ export async function proxy(request: NextRequest) {
         request: { headers: request.headers },
     })
 
+    // Cannot use lib/supabase/server.ts here — that file calls next/headers cookies(), which is unavailable in the middleware/proxy runtime.
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

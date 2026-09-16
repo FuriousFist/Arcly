@@ -44,36 +44,23 @@ export default function DashboardClient() {
     useEffect(() => {
         async function loadDashboardData() {
             try {
-                const [classesRes, dashboardRes] = await Promise.all([
-                    fetch('/api/classes'),
-                    fetch('/api/dashboard'),
-                ])
-
-                if (!classesRes.ok) {
-                    setError('Failed to load classes')
-                    return
-                }
+                const dashboardRes = await fetch('/api/dashboard')
 
                 if (!dashboardRes.ok) {
                     setError('Failed to load dashboard data')
                     return
                 }
 
-                const classesData = await classesRes.json()
                 const dashboardData = await dashboardRes.json()
 
-                const instructorClasses = classesData.data.filter((c: any) => c.role === 'instructor')
-                const merged = instructorClasses.map((entry: any) => {
-                    const stats = dashboardData.classes.find((c: any) => c.class_id === entry.classes.id)
-                    return {
-                        id: entry.classes.id,
-                        name: entry.classes.name,
-                        student_count: stats?.student_count ?? 0,
-                        ungraded_count: stats?.ungraded_count ?? 0,
-                    }
-                })
+                const mapped = dashboardData.classes.map((c: any) => ({
+                    id: c.class_id,
+                    name: c.name,
+                    student_count: c.student_count,
+                    ungraded_count: c.ungraded_count,
+                }))
 
-                setClasses(merged)
+                setClasses(mapped)
                 setRecentSubmissions(dashboardData.recentSubmissions)
                 setUpcomingDueDates(dashboardData.upcomingDueDates)
             } catch (err) {

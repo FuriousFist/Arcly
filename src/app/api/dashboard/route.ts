@@ -16,7 +16,7 @@ export async function GET(_req: Request) {
     // Get the classes where the user is an instructor
     const { data: classes } = await supabase
         .from('class_members')
-        .select('class_id')
+        .select('class_id, classes(name)')
         .eq('user_id', user.id)
         .eq('role', 'instructor')
 
@@ -25,6 +25,7 @@ export async function GET(_req: Request) {
     }
 
     const classIds = classes.map((c) => c.class_id)
+    const classNameMap = new Map(classes.map((c) => [c.class_id, (c.classes as any)?.name ?? null]))
 
     // Get the student counts for each class
     const { data: studentCount } = await supabase
@@ -101,10 +102,9 @@ export async function GET(_req: Request) {
               ).data ?? [])
             : []
 
-    // structure returned in the reponse: class_id, student_count, ungraded_count
-    // for display on main dashboard page.
     const classesReturn = classIds.map((id) => ({
         class_id: id,
+        name: classNameMap.get(id) ?? null,
         student_count: studentCountMap.get(id) ?? 0,
         ungraded_count: submissionCountMap.get(id) ?? 0,
     }))
