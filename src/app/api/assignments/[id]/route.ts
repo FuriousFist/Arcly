@@ -1,28 +1,29 @@
-import { err } from "@/lib/api"
-import { createClient } from "@/lib/supabase/server"
-import { NextResponse } from "next/server"
+import { err, requireUser } from '@/lib/api'
+import { NextResponse } from 'next/server'
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
-
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return err('Unauthorised', 'unauthorised', 401)
+    const auth = await requireUser()
+    if (auth.response) return auth.response
+    const { supabase, user } = auth
 
     const { data: assignmentData, error: assignmentError } = await supabase
         .from('assignments')
-        .select( '*, classes(class_members(user_id))' )
+        .select('*')
         .eq('id', id)
         .single()
 
     if (assignmentError) return err('Cannot get assignment', 'CANNOT_GET_ASSIGNMENT', 500)
     if (!assignmentData) return err('Assignment not found', 'ASSIGNMENT_NOT_FOUND', 404)
 
-    const isMember = assignmentData.classes?.class_members?.some(
-      (m: { user_id: string }) => m.user_id === user.id
-    )
-    if (!isMember) return err('Assignment not found', 'ASSIGNMENT_NOT_FOUND', 404)
-    
-    const { classes: _, ...assignment } = assignmentData
-    return NextResponse.json({ data: assignment })
+    const { data: membership } = await supabase
+        .from('class_members')
+        .select('role')
+        .eq('class_id', assignmentData.class_id)
+        .eq('user_id', user.id)
+        .single()
+
+    if (!membership) return err('Assignment not found', 'ASSIGNMENT_NOT_FOUND', 404)
+
+    return NextResponse.json({ data: assignmentData })
 }

@@ -5,14 +5,13 @@ recent sumbissions and upcoming due dates for the instructor's classes.
 
 // vault: vault/tickets/v1/v1-2.1-instructor-dashboard.md
 
-import { createClient } from "@/lib/supabase/server"
-import { err } from "@/lib/api"
-import { NextResponse } from "next/server"
+import { err, requireUser } from '@/lib/api'
+import { NextResponse } from 'next/server'
 
-export async function GET(req: Request) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return err('Unauthorised', 'unauthorised', 401)
+export async function GET(_req: Request) {
+    const auth = await requireUser()
+    if (auth.response) return auth.response
+    const { supabase, user } = auth
 
     // Get the classes where the user is an instructor
     const { data: classes  } = await supabase
