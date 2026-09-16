@@ -1,12 +1,11 @@
-"use server"
+'use server'
 
-import { createClient } from "@/lib/supabase/server"
+import { requireUser } from '@/lib/api'
 
 export async function completeOnboarding(displayName: string, role: string) {
-
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { error: 'Unauthorised' }
+    const auth = await requireUser()
+    if (auth.response) return { error: 'Unauthorised' }
+    const { supabase, user } = auth
 
     if (displayName.trim().length < 2) return { error: 'Display name must be at least 2 characters long' }
 
@@ -19,5 +18,5 @@ export async function completeOnboarding(displayName: string, role: string) {
 
     if (updateError) return { error: updateError.message }
 
-     return { success: true, role }
+    return { success: true, role }
 }

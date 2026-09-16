@@ -1,31 +1,35 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import Input from '@/components/ui/Input'
+import FullScreenMessage from '@/components/ui/FullScreenMessage'
 
 type ClassSummary = {
-        id: string
-        name: string
-        student_count: number
-        ungraded_count: number
-    }
+    id: string
+    name: string
+    student_count: number
+    ungraded_count: number
+}
 
-    type RecentSubmission = {
-        id: string
-        assignment_id: string
-        submitted_at: string
-        status: string
-        assignment_title: string | null
-    }
+type RecentSubmission = {
+    id: string
+    assignment_id: string
+    submitted_at: string
+    status: string
+    assignment_title: string | null
+}
 
-    type UpcomingDueDate = {
-        id: string
-        class_id: string
-        due_at: string
-        title: string
-    }
+type UpcomingDueDate = {
+    id: string
+    class_id: string
+    due_at: string
+    title: string
+}
 
 export default function DashboardClient() {
-
     const [error, setError] = useState('')
     const [classes, setClasses] = useState<ClassSummary[]>([])
     const [recentSubmissions, setRecentSubmissions] = useState<RecentSubmission[]>([])
@@ -40,39 +44,25 @@ export default function DashboardClient() {
     useEffect(() => {
         async function loadDashboardData() {
             try {
-                const [classesRes, dashboardRes] = await Promise.all([
-                    fetch('/api/classes'),
-                    fetch('/api/dashboard')
-                ])
+                const dashboardRes = await fetch('/api/dashboard')
 
-                if(!classesRes.ok) {
-                    setError('Failed to load classes')
-                    return
-                }
-
-                if(!dashboardRes.ok) {
+                if (!dashboardRes.ok) {
                     setError('Failed to load dashboard data')
                     return
                 }
-                
-                const classesData = await classesRes.json()
+
                 const dashboardData = await dashboardRes.json()
 
-                const instructorClasses = classesData.data.filter((c: any) => c.role === 'instructor')
-                const merged = instructorClasses.map((entry: any) => {
-                    const stats = dashboardData.classes.find((c: any) => c.class_id === entry.classes.id)
-                    return {
-                        id: entry.classes.id,
-                        name: entry.classes.name,
-                        student_count: stats?.student_count ?? 0,
-                        ungraded_count: stats?.ungraded_count ?? 0,
-                    }
-                })
+                const mapped = dashboardData.classes.map((c: any) => ({
+                    id: c.class_id,
+                    name: c.name,
+                    student_count: c.student_count,
+                    ungraded_count: c.ungraded_count,
+                }))
 
-            setClasses(merged)
-            setRecentSubmissions(dashboardData.recentSubmissions)
-            setUpcomingDueDates(dashboardData.upcomingDueDates)
-
+                setClasses(mapped)
+                setRecentSubmissions(dashboardData.recentSubmissions)
+                setUpcomingDueDates(dashboardData.upcomingDueDates)
             } catch (err) {
                 setError('An unexpected error occurred')
             } finally {
@@ -98,7 +88,7 @@ export default function DashboardClient() {
             const res = await fetch('/api/classes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: newClassName.trim() })
+                body: JSON.stringify({ name: newClassName.trim() }),
             })
             if (!res.ok) {
                 setCreateError('Failed to create class')
@@ -132,82 +122,52 @@ export default function DashboardClient() {
             className="fixed inset-0 flex items-center justify-center px-4"
             style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
         >
-            <div
-                className="flex flex-col gap-4 rounded-lg p-6 w-full max-w-sm"
-                style={{ backgroundColor: '#1a1a24', border: '1px solid #2a2a3a' }}
-            >
-                <h2 className="text-lg font-medium" style={{ color: '#f4f3f1' }}>
-                    Create a class
-                </h2>
-                <input
+            <Card className="flex flex-col gap-4 p-6 w-full max-w-sm">
+                <h2 className="text-lg font-medium text-fg">Create a class</h2>
+                <Input
                     type="text"
                     value={newClassName}
                     onChange={(e) => setNewClassName(e.target.value)}
                     placeholder="Class name"
-                    className="rounded-lg px-4 py-2 text-sm w-full"
-                    style={{ backgroundColor: '#0c0c10', color: '#f4f3f1', border: '1px solid #2a2a3a' }}
                 />
-                {createError && <p style={{ color: '#f87171' }}>{createError}</p>}
+                {createError && <p className="text-danger">{createError}</p>}
                 <div className="flex gap-3 justify-end">
-                    <button
-                        onClick={closeCreateForm}
-                        disabled={creating}
-                        className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
-                        style={{ backgroundColor: '#2a2a3a', color: '#f4f3f1' }}
-                    >
+                    <Button variant="secondary" onClick={closeCreateForm} disabled={creating}>
                         Cancel
-                    </button>
-                    <button
-                        onClick={handleCreateClass}
-                        disabled={creating}
-                        className="px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
-                        style={{ backgroundColor: '#3b82f6', color: '#f4f3f1' }}
-                    >
+                    </Button>
+                    <Button onClick={handleCreateClass} disabled={creating}>
                         {creating ? 'Creating...' : 'Create'}
-                    </button>
+                    </Button>
                 </div>
-            </div>
+            </Card>
         </div>
     )
 
     if (loading) {
         return (
-            <div
-                className="flex min-h-screen flex-col items-center justify-center gap-10"
-                style={{ backgroundColor: '#0c0c10' }}
-            >
-                <p style={{ color: '#f4f3f1' }}>Loading...</p>
-            </div>
+            <FullScreenMessage>
+                <p>Loading...</p>
+            </FullScreenMessage>
         )
     }
 
     if (error) {
         return (
-            <div
-                className="flex min-h-screen flex-col items-center justify-center gap-10"
-                style={{ backgroundColor: '#0c0c10' }}
-            >
-                <p style={{ color: '#f4f3f1' }}>{error}</p>
-            </div>
+            <FullScreenMessage>
+                <p>{error}</p>
+            </FullScreenMessage>
         )
     }
 
     if (classes.length === 0) {
         return (
             <>
-                <div
-                    className="flex min-h-screen flex-col items-center justify-center gap-6"
-                    style={{ backgroundColor: '#0c0c10' }}
-                >
-                    <p style={{ color: '#f4f3f1' }}>You don't have any classes yet.</p>
-                    <button
-                        onClick={() => setShowCreateForm(true)}
-                        className="px-6 py-3 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
-                        style={{ backgroundColor: '#3b82f6', color: '#f4f3f1' }}
-                    >
+                <FullScreenMessage>
+                    <p>You don't have any classes yet.</p>
+                    <Button onClick={() => setShowCreateForm(true)} className="px-6 py-3">
                         Create a class
-                    </button>
-                </div>
+                    </Button>
+                </FullScreenMessage>
                 {createFormOverlay}
             </>
         )
@@ -215,105 +175,73 @@ export default function DashboardClient() {
 
     return (
         <>
-            <div
-                className="flex min-h-screen flex-col gap-8 px-8 py-12"
-                style={{ backgroundColor: '#0c0c10' }}
-            >
+            <div className="flex min-h-screen flex-col gap-8 px-8 py-12 bg-bg">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold" style={{ color: '#f4f3f1' }}>
-                        Your classes
-                    </h1>
-                    <button
-                        onClick={() => setShowCreateForm(true)}
-                        className="px-6 py-3 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
-                        style={{ backgroundColor: '#3b82f6', color: '#f4f3f1' }}
-                    >
+                    <h1 className="text-2xl font-semibold text-fg">Your classes</h1>
+                    <Button onClick={() => setShowCreateForm(true)} className="px-6 py-3">
                         Create a class
-                    </button>
+                    </Button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {classes.map((c) => (
-                        <div
+                        <Link
                             key={c.id}
-                            className="flex flex-col gap-3 rounded-lg p-5"
-                            style={{ backgroundColor: '#1a1a24', border: '1px solid #2a2a3a' }}
+                            href={`/classes/${c.id}`}
+                            className="flex flex-col gap-3 rounded-lg p-5 transition-opacity hover:opacity-90 bg-surface border border-border"
                         >
-                            <h2 className="text-lg font-medium" style={{ color: '#f4f3f1' }}>
-                                {c.name}
-                            </h2>
-                            <p className="text-sm opacity-60" style={{ color: '#f4f3f1' }}>
+                            <h2 className="text-lg font-medium text-fg">{c.name}</h2>
+                            <p className="text-sm opacity-60 text-fg">
                                 {c.student_count} student{c.student_count === 1 ? '' : 's'}
                             </p>
                             {c.ungraded_count > 0 && (
-                                <span
-                                    className="self-start px-3 py-1 rounded-full text-xs font-medium"
-                                    style={{ backgroundColor: '#3b82f6', color: '#f4f3f1' }}
-                                >
+                                <span className="self-start px-3 py-1 rounded-full text-xs font-medium bg-accent text-fg">
                                     {c.ungraded_count} ungraded
                                 </span>
                             )}
-                        </div>
+                        </Link>
                     ))}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="flex flex-col gap-3">
-                        <h2 className="text-lg font-medium" style={{ color: '#f4f3f1' }}>
-                            New submissions
-                        </h2>
+                        <h2 className="text-lg font-medium text-fg">New submissions</h2>
                         {recentSubmissions.length === 0 ? (
-                            <p className="text-sm opacity-60" style={{ color: '#f4f3f1' }}>
-                                Nothing submitted yet.
-                            </p>
+                            <p className="text-sm opacity-60 text-fg">Nothing submitted yet.</p>
                         ) : (
                             <div className="flex flex-col gap-2">
                                 {recentSubmissions.map((s) => (
-                                    <div
-                                        key={s.id}
-                                        className="flex items-center justify-between rounded-lg p-3"
-                                        style={{ backgroundColor: '#1a1a24', border: '1px solid #2a2a3a' }}
-                                    >
-                                        <span className="text-sm" style={{ color: '#f4f3f1' }}>
+                                    <Card key={s.id} className="flex items-center justify-between p-3">
+                                        <span className="text-sm text-fg">
                                             {s.assignment_title ?? 'Untitled assignment'}
                                         </span>
-                                        <span className="text-xs opacity-60" style={{ color: '#f4f3f1' }}>
+                                        <span className="text-xs opacity-60 text-fg">
                                             {new Date(s.submitted_at).toLocaleDateString()}
                                         </span>
-                                    </div>
+                                    </Card>
                                 ))}
                             </div>
                         )}
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <h2 className="text-lg font-medium" style={{ color: '#f4f3f1' }}>
-                            Due soon
-                        </h2>
+                        <h2 className="text-lg font-medium text-fg">Due soon</h2>
                         {upcomingDueDates.length === 0 ? (
-                            <p className="text-sm opacity-60" style={{ color: '#f4f3f1' }}>
-                                Nothing due in the next 48 hours.
-                            </p>
+                            <p className="text-sm opacity-60 text-fg">Nothing due in the next 48 hours.</p>
                         ) : (
                             <div className="flex flex-col gap-2">
                                 {upcomingDueDates.map((d) => (
-                                    <div
-                                        key={d.id}
-                                        className="flex items-center justify-between rounded-lg p-3"
-                                        style={{ backgroundColor: '#1a1a24', border: '1px solid #2a2a3a' }}
-                                    >
+                                    <Card key={d.id} className="flex items-center justify-between p-3">
                                         <div className="flex flex-col">
-                                            <span className="text-sm" style={{ color: '#f4f3f1' }}>
-                                                {d.title}
-                                            </span>
-                                            <span className="text-xs opacity-60" style={{ color: '#f4f3f1' }}>
+                                            <span className="text-sm text-fg">{d.title}</span>
+                                            <span className="text-xs opacity-60 text-fg">
                                                 {classes.find((c) => c.id === d.class_id)?.name}
                                             </span>
                                         </div>
-                                        <span className="text-xs opacity-60" style={{ color: '#f4f3f1' }}>
+                                        <span className="text-xs opacity-60 text-fg">
                                             {new Date(d.due_at).toLocaleDateString()}
                                         </span>
-                                    </div>
+                                    </Card>
                                 ))}
                             </div>
                         )}
@@ -323,5 +251,4 @@ export default function DashboardClient() {
             {createFormOverlay}
         </>
     )
-
 }
