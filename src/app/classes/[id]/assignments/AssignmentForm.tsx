@@ -41,7 +41,7 @@ export default function AssignmentForm({ classId, assignment }: { classId: strin
         content: assignment?.brief ?? '',
         editorProps: {
             attributes: {
-                class: 'min-h-[160px] p-3 text-sm text-fg focus:outline-none prose prose-invert max-w-none',
+                class: 'min-h-[160px] p-3 text-sm text-fg',
             },
         },
     })
