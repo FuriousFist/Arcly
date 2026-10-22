@@ -55,6 +55,7 @@ export default function ClassClient({ classId }: { classId: string }) {
     const [copied, setCopied] = useState(false)
     const [removingId, setRemovingId] = useState<string | null>(null)
     const [removeError, setRemoveError] = useState('')
+    const [closingId, setClosingId] = useState<string | null>(null)
 
     useEffect(() => {
         async function loadClass() {
@@ -83,6 +84,32 @@ export default function ClassClient({ classId }: { classId: string }) {
             setTimeout(() => setCopied(false), 2000)
         } catch (err) {
             // Clipboard can be unavailable (insecure context / permissions) — fail quietly
+        }
+    }
+
+    async function handleCloseAssignment(assignmentId: string) {
+        if (closingId) return
+        if (!window.confirm('Close this assignment? Students will no longer be able to submit.')) return
+        setClosingId(assignmentId)
+        try {
+            const res = await fetch(`/api/assignments/${assignmentId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'closed' }),
+            })
+            if (!res.ok) return
+            setClassData((prev) =>
+                prev
+                    ? {
+                          ...prev,
+                          assignments: prev.assignments.map((a) =>
+                              a.id === assignmentId ? { ...a, status: 'closed' as const } : a,
+                          ),
+                      }
+                    : prev,
+            )
+        } finally {
+            setClosingId(null)
         }
     }
 
@@ -202,7 +229,7 @@ export default function ClassClient({ classId }: { classId: string }) {
                                         </span>
                                     )}
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-3">
                                     <span className="text-xs opacity-60 text-fg">
                                         {submissionCount} submission{submissionCount === 1 ? '' : 's'}
                                     </span>
@@ -212,6 +239,24 @@ export default function ClassClient({ classId }: { classId: string }) {
                                     >
                                         {a.status}
                                     </span>
+                                    {a.status === 'draft' && (
+                                        <Link
+                                            href={`/classes/${classId}/assignments/${a.id}/edit`}
+                                            className="px-3 py-1 rounded-lg text-xs font-medium bg-border text-fg hover:opacity-90"
+                                        >
+                                            Edit
+                                        </Link>
+                                    )}
+                                    {a.status === 'published' && (
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => handleCloseAssignment(a.id)}
+                                            disabled={closingId !== null}
+                                            className="px-3 py-1 text-xs"
+                                        >
+                                            {closingId === a.id ? 'Closing...' : 'Close'}
+                                        </Button>
+                                    )}
                                 </div>
                             </Card>
                         )

@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     if (auth.response) return auth.response
     const { supabase, user } = auth
 
-    const { class_id, title, brief, due_at, rubric_json, submission_types } = await req.json()
+    const { class_id, title, brief, due_at, rubric_json, submission_types, status } = await req.json()
 
     if (!class_id || !title) return err('Missing parameters', 'MISSING_PARAMETERS', 400)
 
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const { error: assignmentError, data: newAssignment } = await supabase
         .from('assignments')
-        .insert([{ class_id, title, brief, due_at, rubric_json, submission_types }])
+        .insert([{ class_id, title, brief, due_at, rubric_json, submission_types, status: status ?? 'draft' }])
         .select()
         .single()
 
